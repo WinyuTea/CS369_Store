@@ -1,32 +1,25 @@
 var express = require('express');
 var router = express.Router();
 const mongoose = require('mongoose');
-const product = require('../models/productModel')
+const Product = require('../models/Product')
 
 //get all product
-router.get('/', function(req, res, next) {
-    product.find((err, products) => {
-        if(err) return next(err);
+router.get('/', async function(req, res, next) {
+    try {
+        const products = await Product.find();
         console.log(products);
         res.json(products);
-    })
+    } catch (err) {
+        next(err); // Pass error to the error handling middleware
+    }
 });
 
 //add product
 router.post('/', async (req, res, next) => {
     try {
-        const newProduct = new product({
-            prod_name: req.body.name,
-            prod_image_path: req.body.image_path,
-            prod_price: req.body.price,
-            prod_desc: req.body.description
-        });
-
-        const savedProduct = await newProduct.save();
+        const savedProduct = await Product.create(req.body);
         res.status(201).json(savedProduct);
-        console.log('good')
     } catch (err) {
-        console.log('555error')
         next(err);
     }
 });
