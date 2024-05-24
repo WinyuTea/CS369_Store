@@ -12,8 +12,6 @@ mongoose.connect('mongodb+srv://admin:cs369password@cluster0.jiieztl.mongodb.net
         .then(() => console.log("connect to mongodb successful."))
         .catch((err) => console.error(err))
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
 var productRouter = require('./routes/product');
 var authtRouter = require('./routes/auth');
 
@@ -30,8 +28,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-//app.use('/', indexRouter);
-//app.use('/users', usersRouter);
 app.use('/product', productRouter);
 app.use('/auth', authtRouter);
 
