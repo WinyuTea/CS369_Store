@@ -3,6 +3,7 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var cors = require('cors');
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
@@ -17,6 +18,7 @@ var productRouter = require('./routes/product');
 var authtRouter = require('./routes/auth');
 
 var app = express();
+app.use(cors());
 
 // view engine setupS
 app.set('views', path.join(__dirname, 'views'));
@@ -28,8 +30,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
+//app.use('/', indexRouter);
+//app.use('/users', usersRouter);
 app.use('/product', productRouter);
 app.use('/auth', authtRouter);
 

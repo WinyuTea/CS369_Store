@@ -1,4 +1,5 @@
 var express = require('express');
+const passport = require('passport');
 var router = express.Router();
 const mongoose = require('mongoose');
 const Product = require('../models/Product')
@@ -15,13 +16,17 @@ router.get('/', async function(req, res, next) {
 });
 
 //add product
-router.post('/', async (req, res, next) => {
+router.post('/', passport.authenticate('jwt', { session: false }), async (req, res, next) => {
     try {
         const savedProduct = await Product.create(req.body);
         res.status(201).json(savedProduct);
     } catch (err) {
         next(err);
     }
+});
+
+router.get('/data', passport.authenticate('jwt', { session: false }), (req, res) => {
+    res.json({ msg: 'Protected data access granted', user: req.user });
 });
 
 module.exports = router;

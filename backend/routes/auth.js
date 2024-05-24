@@ -2,7 +2,8 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
-const LocalStrategy = require('passport-local').Strategy;
+const { Strategy: LocalStrategy } = require('passport-local');
+const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 
@@ -31,12 +32,54 @@ passport.use(new LocalStrategy(
   }
 ));
 
+// Configure the JWT strategy
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: 'jwtSecret', // Use your actual secret here
+};
+
+passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
+  try {
+    const user = await User.findById(jwtPayload.id);
+    if (user) {
+      return done(null, user);
+    } else {
+      return done(null, false);
+    }
+  } catch (error) {
+    return done(error, false);
+  }
+}));
+
+// Initialize Passport middleware
+router.use(passport.initialize());
+
 // Authentication route
-router.post('/login', passport.authenticate('local', { session: false }), function(req, res) {
-  // If authentication succeeds, this function will be called
-  // You can handle successful authentication here
-  const token = jwt.sign({ id: req.user.id }, 'jwtSecret', { expiresIn: '1h' });
-  res.json({ token });
+router.post('/login', [
+  body('username', 'Username is required').not().isEmpty(),
+  body('password', 'Password is required').exists()
+], (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  passport.authenticate('local', { session: false }, (err, user, info) => {
+    if (err) {
+      return next(err);
+    }
+    if (!user) {
+      return res.status(400).json({ msg: info.message });
+    }
+
+    const payload = { id: user.id, username: user.username };
+    jwt.sign(payload, 'jwtSecret', { expiresIn: '1h' }, (err, token) => {
+      if (err) {
+        return next(err);
+      }
+      res.json({ token });
+    });
+  })(req, res, next);
 });
 
 // Signup route
@@ -56,7 +99,8 @@ router.post('/signup', [
       return res.status(400).json({ msg: 'User already exists' });
     }
 
-    user = new User({ username, password });
+    const hashedPassword = await bcrypt.hash(password, 10);
+    user = new User({ username, password: hashedPassword });
     await user.save();
 
     res.status(201).json({ msg: 'User created successfully' });
@@ -66,4 +110,10 @@ router.post('/signup', [
   }
 });
 
+// Protected route example
+router.get('/data', passport.authenticate('jwt', { session: false }), (req, res) => {
+  res.json({ msg: 'Protected data access granted', user: req.user });
+});
+
 module.exports = router;
+
