@@ -2,6 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
+import Product from './pages/Product';
+import Login from './pages/Login';
+import Add from './pages/Add';
+import Home from './pages/Home';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -13,6 +17,18 @@ const router = createBrowserRouter([
   {
     path: "/",
     element: <App/>
+  },
+  {
+    path: "/login",
+    element: <Login/>
+  },
+  {
+    path: "/product/:id",
+    element: <Product/>
+  },
+  {
+    path: "/add",
+    element: <Add/>
   }
 ]);
 
