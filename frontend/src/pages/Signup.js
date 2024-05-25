@@ -2,18 +2,20 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import '../App.css';
 
-function Login() {
+function Signup() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleSignup = async (e) => {
     e.preventDefault();
     setError(null); // Reset error state
+    setSuccess(false); // Reset success state
 
     try {
-      const response = await fetch('http://localhost:3000/auth/login', {
+      const response = await fetch('http://localhost:3000/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -24,14 +26,12 @@ function Login() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.msg || 'Failed to login');
+        throw new Error(data.msg || 'Failed to sign up');
       }
 
-      // Save the token in local storage or context
-      localStorage.setItem('token', data.token);
-
-      // Redirect to the home page or any other page
-      navigate('/');
+      setSuccess(true);
+      // Navigate to login page or home page after a short delay
+      setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       setError(err.message);
     }
@@ -40,13 +40,14 @@ function Login() {
   return (
     <div className="app">
       <header className="header">
-        <h1>Login</h1>
+        <h1>Sign Up</h1>
         <Link to="/"><button className="nav-button">Home</button></Link>
       </header>
       <div className="main-content center-content">
-        <div className="login-form">
+        <div className="signup-form">
           {error && <div className="error">{error}</div>}
-          <form onSubmit={handleLogin}>
+          {success && <div className="success">Sign up successful! Redirecting to login...</div>}
+          <form onSubmit={handleSignup}>
             <div className="form-group">
               <label htmlFor="username">Username:</label>
               <input
@@ -71,7 +72,7 @@ function Login() {
                 required
               />
             </div>
-            <button type="submit" className="nav-button">Login</button>
+            <button type="submit" className="nav-button">Sign Up</button>
           </form>
         </div>
       </div>
@@ -82,4 +83,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Signup;

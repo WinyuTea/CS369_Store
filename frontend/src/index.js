@@ -6,6 +6,7 @@ import Product from './pages/Product';
 import Login from './pages/Login';
 import Add from './pages/Add';
 import Home from './pages/Home';
+import Signup from './pages/Signup';
 import reportWebVitals from './reportWebVitals';
 import {
   createBrowserRouter,
@@ -29,6 +30,10 @@ const router = createBrowserRouter([
   {
     path: "/add",
     element: <Add/>
+  },
+  {
+    path: "/signup",
+    element:<Signup/>
   }
 ]);
 

@@ -43,7 +43,7 @@ function Home() {
             <h3>รายการสินค้า</h3>
             <div className="product-list">
             {data.map((product) => (
-                <Link key={product._id} to={`/product/${product._id}`} className="product-item">
+                <Link key={product.id} to={`/product/${product._id}`} className="product-item">
                     <img src={product.prod_image_path} alt={product.prod_name} />
                     <h3>{product.prod_name}</h3> 
                     <p>{product.prod_price} บาท</p>
