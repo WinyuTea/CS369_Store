@@ -9,10 +9,8 @@ function Home() {
         const fetchData = async () => {
             try {
                 setTimeout(async () => {
-                    // Fetch data from the backend
                     const response = await fetch('http://localhost:3000/product');
                     
-                    // Check if the response is successful
                     if (!response.ok) {
                         throw new Error('Failed to fetch');
                     }
@@ -20,11 +18,10 @@ function Home() {
                     // Parse the JSON data
                     const data = await response.json();
                     
-                    // Update the state with the fetched data
                     setData(data);
                 }, 1000);
             } catch (error) {
-                // Handle any errors
+                
                 setError(error.message);
                 console.error('Error fetching products:', error);
             }
