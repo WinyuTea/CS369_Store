@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-
 function Home() {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
@@ -15,7 +14,6 @@ function Home() {
                         throw new Error('Failed to fetch');
                     }
                     
-                    // Parse the JSON data
                     const data = await response.json();
                     
                     setData(data);

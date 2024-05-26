@@ -8,7 +8,7 @@ function Add() {
   const [data, setData] = useState({
     prod_name: "",
     prod_price: "",
-    prod_image_path: null,
+    prod_image_path: "",
     prod_desc: ""
   });
 
@@ -18,22 +18,40 @@ function Add() {
     if (!token) {
       return navigate('/login');
     }
-
+  
     try {
       const formData = new FormData();
       formData.append('prod_name', data.prod_name);
       formData.append('prod_price', data.prod_price);
       formData.append('prod_image_path', data.prod_image_path);
       formData.append('prod_desc', data.prod_desc);
-      const dat = Object.fromEntries(formData);
-      console.log(dat)
-      const response = await Axios.post('http://localhost:3000/product', dat, {
+
+      // Logging FormData content
+      for (let [key, value] of formData.entries()) {
+        console.log(key, value);
+      }
+  
+      const response = await Axios.post('http://localhost:3000/product', {
+        prod_name: data.prod_name,
+        prod_price: data.prod_price,
+        prod_image_path: data.prod_image_path,
+        prod_desc: data.prod_desc
+      }, {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response.data);
+
+      console.log('Response:', response.data);
+  
+      const { _id, prod_name, prod_price, prod_image_path, prod_desc } = response.data;
+      console.log('Product Details:');
+      console.log('ID:', _id);
+      console.log('Name:', prod_name);
+      console.log('Price:', prod_price);
+      console.log('Image Path:', prod_image_path);
+      console.log('Description:', prod_desc);
+  
       navigate('/');
     } catch (error) {
       console.error('Error adding product:', error);
@@ -44,12 +62,14 @@ function Add() {
     const newdata = { ...data };
     newdata[e.target.id] = e.target.value;
     setData(newdata);
+    console.log(newdata);
   };
 
   const handleFileChange = (e) => {
     const newdata = { ...data };
     newdata.prod_image_path = e.target.files[0];
     setData(newdata);
+    console.log(newdata);
   };
 
   return (
