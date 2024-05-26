@@ -44,7 +44,7 @@ function Signup() {
         <Link to="/"><button className="nav-button">Home</button></Link>
       </header>
       <div className="main-content center-content">
-        <div className="signup-form">
+        <div className="login-form">
           {error && <div className="error">{error}</div>}
           {success && <div className="success">Sign up successful! Redirecting to login...</div>}
           <form onSubmit={handleSignup}>

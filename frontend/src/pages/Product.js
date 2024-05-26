@@ -53,6 +53,7 @@ function Product() {
         </div>
       </header>
       <div className="product-detail">
+        <h3>Product Detail</h3>
         <img src={product.prod_image_path} alt={product.prod_name} />
         <p>Price: {product.prod_price} บาท</p>
         <div className="description-box">
