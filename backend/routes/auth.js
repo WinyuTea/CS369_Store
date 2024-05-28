@@ -5,7 +5,8 @@ const passport = require('passport');
 const { Strategy: LocalStrategy } = require('passport-local');
 const { Strategy: JwtStrategy, ExtractJwt } = require('passport-jwt');
 const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
+const sql = require('mssql');
+const config = require('../dbconfig');
 
 const router = express.Router();
 
@@ -13,7 +14,12 @@ const router = express.Router();
 passport.use(new LocalStrategy(
   async function(username, password, done) {
     try {
-      const user = await User.findOne({ username });
+      const pool = await sql.connect(config);
+      const result = await pool.request()
+        .input('username', sql.NVarChar(255), username)
+        .query('SELECT * FROM [User] WHERE username = @username');
+      const user = result.recordset[0];
+      pool.close();
 
       if (!user) {
         return done(null, false, { message: 'Incorrect username.' });
@@ -35,12 +41,18 @@ passport.use(new LocalStrategy(
 // Configure the JWT strategy
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-  secretOrKey: 'jwtSecret', // Use your actual secret here
+  secretOrKey: process.env.JWT_SECRET || 'jwtSecret',
 };
 
 passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   try {
-    const user = await User.findById(jwtPayload.id);
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('id', sql.Int, jwtPayload.id)
+      .query('SELECT * FROM [User] WHERE userID = @id');
+    const user = result.recordset[0];
+    pool.close();
+
     if (user) {
       return done(null, user);
     } else {
@@ -51,10 +63,8 @@ passport.use(new JwtStrategy(jwtOptions, async (jwtPayload, done) => {
   }
 }));
 
-// Initialize Passport middleware
 router.use(passport.initialize());
 
-// Authentication route
 router.post('/login', [
   body('username', 'Username is required').not().isEmpty(),
   body('password', 'Password is required').exists()
@@ -72,8 +82,8 @@ router.post('/login', [
       return res.status(400).json({ msg: info.message });
     }
 
-    const payload = { id: user.id, username: user.username };
-    jwt.sign(payload, 'jwtSecret', { expiresIn: '1h' }, (err, token) => {
+    const payload = { id: user.userID, username: user.username };
+    jwt.sign(payload, process.env.JWT_SECRET || 'jwtSecret', { expiresIn: '1h' }, (err, token) => {
       if (err) {
         return next(err);
       }
@@ -82,7 +92,6 @@ router.post('/login', [
   })(req, res, next);
 });
 
-// Signup route
 router.post('/signup', [
   body('username', 'Username is required').not().isEmpty(),
   body('password', 'Password is required').isLength({ min: 6 })
@@ -94,14 +103,23 @@ router.post('/signup', [
 
   const { username, password } = req.body;
   try {
-    let user = await User.findOne({ username });
-    if (user) {
+    const pool = await sql.connect(config);
+    const result = await pool.request()
+      .input('username', sql.NVarChar(255), username)
+      .query('SELECT * FROM [User] WHERE username = @username');
+
+    if (result.recordset.length > 0) {
       return res.status(400).json({ msg: 'User already exists' });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    user = new User({ username, password: hashedPassword });
-    await user.save();
+
+    await pool.request()
+      .input('username', sql.NVarChar(255), username)
+      .input('password', sql.NVarChar(255), hashedPassword)
+      .query('INSERT INTO [User] (username, password) VALUES (@username, @password)');
+
+    pool.close();
 
     res.status(201).json({ msg: 'User created successfully' });
   } catch (err) {
@@ -110,7 +128,6 @@ router.post('/signup', [
   }
 });
 
-// Protected route example
 router.get('/data', passport.authenticate('jwt', { session: false }), (req, res) => {
   res.json({ msg: 'Protected data access granted', user: req.user });
 });
