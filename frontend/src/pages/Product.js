@@ -22,7 +22,7 @@ function Product() {
         const products = await response.json();
         
         // Find the product with the matching ID
-        const selectedProduct = products.find(product => product._id === id);
+        const selectedProduct = products.find(product => product.productID.toString() === id);
         
         // Update the state with the fetched product data
         setProduct(selectedProduct);
@@ -47,17 +47,17 @@ function Product() {
   return (
     <div className="app">
       <header className="header">
-        <h2>{product.prod_name}</h2>
+        <h2>{product.productName}</h2>
         <div className="nav-icon">
-        <Link to="/"><button className="nav-button">Home</button></Link>
+          <Link to="/"><button className="nav-button">Home</button></Link>
         </div>
       </header>
       <div className="product-detail">
         <h3>Product Detail</h3>
-        <img src={product.prod_image_path} alt={product.prod_name} />
-        <p>Price: {product.prod_price} บาท</p>
+        <img src={`http://localhost:3000/images/${product.productImage}`} alt={product.productName} />
+        <p>Price: {product.productPrice} บาท</p>
         <div className="description-box">
-          <p>{product.prod_desc}</p>
+          <p>{product.productDescription}</p>
         </div>
       </div>
       <footer className="footer">
