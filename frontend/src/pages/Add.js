@@ -11,6 +11,7 @@ function Add() {
     prod_image_path: "",
     prod_desc: ""
   });
+  const [image, setImage] = useState(null);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -19,44 +20,42 @@ function Add() {
       return navigate('/login');
     }
   
-    try {
-      const formData = new FormData();
-      formData.append('prod_name', data.prod_name);
-      formData.append('prod_price', data.prod_price);
-      formData.append('prod_image_path', data.prod_image_path);
-      formData.append('prod_desc', data.prod_desc);
-
-      // Logging FormData content
-      for (let [key, value] of formData.entries()) {
-        console.log(key, value);
-      }
+    if (!data.prod_name || !data.prod_price || !data.prod_desc || !image) {
+      alert("Please fill in all fields and upload an image.");
+      return;
+    }
   
-      const response = await Axios.post('http://localhost:3000/product', {
+    try {
+      // Upload the image
+      const formData = new FormData();
+      formData.append('file', image);
+      console.log(image);
+      const uploadResponse = await Axios.post('http://localhost:3000/upload', formData);
+  
+      // Get the image path from the upload response
+      const imagePath = uploadResponse.data.path;
+      console.log('Uploaded image path:', imagePath);
+  
+      // Submit the product with the image path
+      const productResponse = await Axios.post('http://localhost:3000/product', {
         prod_name: data.prod_name,
         prod_price: data.prod_price,
-        prod_image_path: data.prod_image_path,
+        prod_image_path: imagePath,
         prod_desc: data.prod_desc
       }, {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
-
-      console.log('Response:', response.data);
   
-      const { _id, prod_name, prod_price, prod_image_path, prod_desc } = response.data;
-      console.log('Product Details:');
-      console.log('ID:', _id);
-      console.log('Name:', prod_name);
-      console.log('Price:', prod_price);
-      console.log('Image Path:', prod_image_path);
-      console.log('Description:', prod_desc);
+      console.log('Product added:', productResponse.data);
   
+      // Redirect to home page after successful submission
       navigate('/');
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error('Error:', error);
     }
-  };
+  };  
 
   const handle = (e) => {
     const newdata = { ...data };
@@ -66,11 +65,14 @@ function Add() {
   };
 
   const handleFileChange = (e) => {
-    const newdata = { ...data };
-    newdata.prod_image_path = e.target.files[0];
+    const newimage = e.target.files[0];
+    setImage(newimage);
+    const imagePath = `../Images/${newimage.name}`;
+    const newdata = { ...data, prod_image_path: imagePath };
     setData(newdata);
-    console.log(newdata);
+    console.log('Updated data with image path:', newdata);
   };
+  
 
   return (
     <div className="app">
@@ -80,7 +82,7 @@ function Add() {
           <Link to="/"><button className="nav-button">Home</button></Link>
         </div>
       </header>
-      <form className="content" onSubmit={submit}>
+      <form className="content"  onSubmit={submit}>
         <div className="form-group">
           <label>Name:</label>
           <input className="form-control" onChange={handle} id="prod_name" value={data.prod_name} placeholder="Product's Name" type="text" />

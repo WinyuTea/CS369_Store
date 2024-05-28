@@ -4,6 +4,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var cors = require('cors');
+const multer = require('multer');
+
 const mongoose = require('mongoose');
 
 mongoose.Promise = global.Promise;
@@ -16,11 +18,12 @@ var productRouter = require('./routes/product');
 var authtRouter = require('./routes/auth');
 
 var app = express();
-
+app.use(cors());
 // view engine setupS
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+app.use('/images', express.static(path.join(__dirname, 'public', 'Images')));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -29,6 +32,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/product', productRouter);
 app.use('/auth', authtRouter);
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, './public/Images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  }
+})
+
+const upload = multer({storage: storage})
+
+app.post('/upload', upload.single('file'), (req, res) => {
+  if (!req.file) {
+    return res.status(400).json({ error: 'No file uploaded' });
+  }
+  const imagePath = `../images/${req.file.filename}`;
+  res.json({ path: imagePath });
+});
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
