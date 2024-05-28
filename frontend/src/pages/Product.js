@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import '../App.css'; // Importing styles from App.css
-import Image from '../images/side_eye_cat.jpg';
 
 function Product() {
   const { id } = useParams(); // Get the product ID from the URL
@@ -54,7 +53,8 @@ function Product() {
         </div>
       </header>
       <div className="product-detail">
-        <img src={Image} alt={product.prod_name} />
+        <h3>Product Detail</h3>
+        <img src={product.prod_image_path} alt={product.prod_name} />
         <p>Price: {product.prod_price} บาท</p>
         <div className="description-box">
           <p>{product.prod_desc}</p>

@@ -6,11 +6,12 @@ import '../App.css';
 function Add() {
   const navigate = useNavigate();
   const [data, setData] = useState({
-    prod_name: "",
-    prod_price: "",
-    prod_image_path: null,
-    prod_desc: ""
+    productName: "",
+    productPrice: "",
+    productDescription: "",
+    productImage: ""
   });
+  const [image, setImage] = useState(null);
 
   const submit = async (e) => {
     e.preventDefault();
@@ -18,39 +19,57 @@ function Add() {
     if (!token) {
       return navigate('/login');
     }
-
+  
+    if (!data.productName || !data.productPrice || !data.productDescription || !image) {
+      alert("Please fill in all fields and upload an image.");
+      return;
+    }
+  
     try {
+      // Upload the image
       const formData = new FormData();
-      formData.append('prod_name', data.prod_name);
-      formData.append('prod_price', data.prod_price);
-      formData.append('prod_image_path', data.prod_image_path);
-      formData.append('prod_desc', data.prod_desc);
-      const dat = Object.fromEntries(formData);
-      console.log(dat)
-      const response = await Axios.post('http://localhost:3000/product', dat, {
+      formData.append('file', image);
+      console.log(image);
+      const uploadResponse = await Axios.post('http://localhost:3000/upload', formData);
+  
+      // Get the image path from the upload response
+      const imagePath = uploadResponse.data.path;
+      console.log('Uploaded image path:', imagePath);
+  
+      // Submit the product with the image path
+      const productResponse = await Axios.post('http://localhost:3000/product', {
+        productName: data.productName,
+        productPrice: data.productPrice,
+        productDescription: data.productDescription,
+        productImage: imagePath
+      }, {
         headers: {
           'Authorization': `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
         },
       });
-      console.log(response.data);
+  
+      console.log('Product added:', productResponse.data);
+  
+      // Redirect to home page after successful submission
       navigate('/');
     } catch (error) {
-      console.error('Error adding product:', error);
+      console.error('Error:', error);
     }
-  };
+  };  
 
   const handle = (e) => {
     const newdata = { ...data };
     newdata[e.target.id] = e.target.value;
     setData(newdata);
+    console.log(newdata);
   };
 
   const handleFileChange = (e) => {
-    const newdata = { ...data };
-    newdata.prod_image_path = e.target.files[0];
-    setData(newdata);
+    const newimage = e.target.files[0];
+    setImage(newimage);
+    console.log('Uploaded image:', newimage);
   };
+  
 
   return (
     <div className="app">
@@ -63,19 +82,19 @@ function Add() {
       <form className="content" onSubmit={submit}>
         <div className="form-group">
           <label>Name:</label>
-          <input className="form-control" onChange={handle} id="prod_name" value={data.prod_name} placeholder="Product's Name" type="text" />
+          <input className="form-control" onChange={handle} id="productName" value={data.productName} placeholder="Product's Name" type="text" />
         </div>
         <div className="form-group">
           <label>Price:</label>
-          <input className="form-control" onChange={handle} id="prod_price" value={data.prod_price} placeholder="Product's Price" type="number" />
+          <input className="form-control" onChange={handle} id="productPrice" value={data.productPrice} placeholder="Product's Price" type="number" />
         </div>
         <div className="form-group">
           <label>Image:</label>
-          <input className="form-control" onChange={handleFileChange} id="prod_image_path" type="file" />
+          <input className="form-control" onChange={handleFileChange} id="productImage" type="file" />
         </div>
         <div className="form-group">
           <label>Description:</label>
-          <textarea className="form-control" onChange={handle} id="prod_desc" value={data.prod_desc} placeholder="Product's Description" />
+          <textarea className="form-control" onChange={handle} id="productDescription" value={data.productDescription} placeholder="Product's Description" />
         </div>
         <button className="nav-button" type="submit">Add Product</button>
       </form>
