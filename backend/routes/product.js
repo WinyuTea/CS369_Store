@@ -44,7 +44,7 @@ async function addProduct(productName, productPrice, productDescription, product
       // Close the connection
       pool.close();
     } catch (err) {
-      console.error("Error adding product:", err);
+        console.error("Error adding product:", err);
     }
   }
 

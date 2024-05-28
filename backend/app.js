@@ -40,10 +40,6 @@ app.post('/upload', upload.single('file'), (req, res) => {
   res.json({ path: imagePath });
 });
 
-app.use(function(req, res, next) {
-  next(createError(404));
-});
-
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
