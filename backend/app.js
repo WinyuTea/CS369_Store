@@ -33,6 +33,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/product', productRouter);
 app.use('/auth', authtRouter);
 
+//โหลดไฟล์ลง Images folder
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, './public/Images');
