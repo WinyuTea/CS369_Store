@@ -54,7 +54,7 @@ function Product() {
       </header>
       <div className="product-detail">
         <h3>Product Detail</h3>
-        <img src={`http://localhost:3000/images/${product.productImage}`} alt={product.productName} />
+        <img src={`http://localhost:3000${product.productImage}`} alt={product.productName} />
         <p>Price: {product.productPrice} บาท</p>
         <div className="description-box">
           <p>{product.productDescription}</p>
@@ -62,6 +62,8 @@ function Product() {
       </div>
       <footer className="footer">
         <p>CS369 Group Project</p>
+        <p className="name">6409610745 วิญญู รังสีเลิศ</p>
+        <p className="name">6409682561 พีร์ โพชนา</p>
       </footer>
     </div>
   );

@@ -59,7 +59,6 @@ function Home() {
 
   const handleDelete = async () => {
     try {
-      // Create an array of objects containing both product ID and image name
       const productsToDelete = selectedProducts.map(id => ({
         id,
         imageName: data.find(product => product.productID === id).productImage
@@ -78,12 +77,15 @@ function Home() {
       console.error('Error deleting products:', error);
     }
   };
-  
-  
 
   const filteredData = data.filter(product =>
     product.productName && product.productName.toLowerCase().includes(searchTerm.toLowerCase())
   );
+
+  const truncateDescription = (description, maxLength) => {
+    if (description.length <= maxLength) return description;
+    return description.substring(0, maxLength) + '...';
+  };
 
   if (error) {
     return <div>Error fetching products: {error}</div>;
@@ -119,10 +121,11 @@ function Home() {
                 <img src={`http://localhost:3000${product.productImage}`} alt={product.productName} />
                 <h3>{product.productName}</h3>
                 <p>{product.productPrice} บาท</p>
-                <p>{product.productDescription}</p>
+                <p className="description-box">{truncateDescription(product.productDescription, 100)}</p>
               </Link>
               <input
                 type="checkbox"
+                className="product-checkbox"
                 checked={selectedProducts.includes(product.productID)}
                 onChange={() => handleCheckboxChange(product.productID)}
               />
