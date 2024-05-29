@@ -22,7 +22,7 @@ app.use('/auth', authRouter);
 // Multer configuration for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/Images');
+    cb(null, './public/images');
   },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
@@ -45,7 +45,7 @@ app.use(function (req, res, next) {
   next(createError(404));
 });
 
-const port = process.env.PORT || 3000;
+const port = 3001;
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
