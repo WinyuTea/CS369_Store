@@ -10,11 +10,14 @@ function Home() {
   const [sortOption, setSortOption] = useState('');
   const [loading, setLoading] = useState(true);
   const [selectedProducts, setSelectedProducts] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // Track login status
 
   useEffect(() => {
+    const token = localStorage.getItem('token'); // Check for token in local storage
+    setIsLoggedIn(!!token); // Update login status
     const fetchData = async () => {
       try {
-        const response = await fetch('http://localhost:3000/product');
+        const response = await fetch('http://localhost:3001/product');
         if (!response.ok) {
           throw new Error('Failed to fetch');
         }
@@ -59,12 +62,13 @@ function Home() {
 
   const handleDelete = async () => {
     try {
+      // Create an array of objects containing both product ID and image name
       const productsToDelete = selectedProducts.map(id => ({
         id,
         imageName: data.find(product => product.productID === id).productImage
       }));
       
-      await Axios.delete('http://localhost:3000/product', {
+      await Axios.delete('http://localhost:3001/product', {
         data: { products: productsToDelete },
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('token')}`,
@@ -118,23 +122,25 @@ function Home() {
           {filteredData.map((product) => (
             <div key={product.productID} className="product-item">
               <Link to={`/product/${product.productID}`} className="product-link">
-                <img src={`http://localhost:3000${product.productImage}`} alt={product.productName} />
+                <img src={`http://localhost:3001${product.productImage}`} alt={product.productName} />
                 <h3>{product.productName}</h3>
                 <p>{product.productPrice} บาท</p>
-                <p className="description-box">{truncateDescription(product.productDescription, 100)}</p>
+                <p className="description-box">{truncateDescription(product.productDescription)}</p>
               </Link>
-              <input
-                type="checkbox"
-                className="product-checkbox"
-                checked={selectedProducts.includes(product.productID)}
-                onChange={() => handleCheckboxChange(product.productID)}
-              />
+              {isLoggedIn && (
+                <input
+                  type="checkbox"
+                  className="product-checkbox"
+                  checked={selectedProducts.includes(product.productID)}
+                  onChange={() => handleCheckboxChange(product.productID)}
+                />
+              )}
             </div>
           ))}
         </div>
       )}
 
-      {selectedProducts.length > 0 && (
+      {isLoggedIn && selectedProducts.length > 0 && (
         <button onClick={handleDelete} className="delete-button">Delete Selected</button>
       )}
     </div>
