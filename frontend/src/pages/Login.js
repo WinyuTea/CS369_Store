@@ -77,6 +77,8 @@ function Login() {
       </div>
       <footer className="footer">
         <p>CS369 Group Project</p>
+        <p className="name">6409610745 วิญญู รังสีเลิศ</p>
+        <p className="name">6409682561 พีร์ โพชนา</p>
       </footer>
     </div>
   );

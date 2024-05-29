@@ -29,12 +29,10 @@ function Add() {
       // Upload the image
       const formData = new FormData();
       formData.append('file', image);
-      console.log(image);
       const uploadResponse = await Axios.post('http://localhost:3000/upload', formData);
   
       // Get the image path from the upload response
       const imagePath = uploadResponse.data.path;
-      console.log('Uploaded image path:', imagePath);
   
       // Submit the product with the image path
       const productResponse = await Axios.post('http://localhost:3000/product', {
@@ -55,21 +53,18 @@ function Add() {
     } catch (error) {
       console.error('Error:', error);
     }
-  };  
+  };
 
   const handle = (e) => {
     const newdata = { ...data };
     newdata[e.target.id] = e.target.value;
     setData(newdata);
-    console.log(newdata);
   };
 
   const handleFileChange = (e) => {
     const newimage = e.target.files[0];
     setImage(newimage);
-    console.log('Uploaded image:', newimage);
   };
-  
 
   return (
     <div className="app">
@@ -100,6 +95,8 @@ function Add() {
       </form>
       <footer className="footer">
         <p>CS369 Group Project</p>
+        <p className="name">6409610745 วิญญู รังสีเลิศ</p>
+        <p className="name">6409682561 พีร์ โพชนา</p>
       </footer>
     </div>
   );

@@ -1,13 +1,14 @@
-var express = require('express');
+const express = require('express');
 const bodyParser = require('body-parser');
 const multer = require('multer');
 const path = require('path');
-var cors = require('cors');
+const { v4: uuidv4 } = require('uuid');
+const cors = require('cors');
 
-var productRouter = require('./routes/product');
-var authRouter = require('./routes/auth');
+const productRouter = require('./routes/product');
+const authRouter = require('./routes/auth');
 
-var app = express();
+const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
@@ -24,20 +25,24 @@ const storage = multer.diskStorage({
     cb(null, './public/Images');
   },
   filename: (req, file, cb) => {
-    cb(null, file.originalname);
+    const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+    cb(null, uniqueName);
   }
 });
 
-const upload = multer({storage: storage});
+const upload = multer({ storage: storage });
 
 // Upload endpoint
 app.post('/upload', upload.single('file'), (req, res) => {
   if (!req.file) {
     return res.status(400).json({ error: 'No file uploaded' });
   }
-  // Correct image path
-  const imagePath = `../images/${req.file.filename}`;
+  const imagePath = `/images/${req.file.filename}`;
   res.json({ path: imagePath });
+});
+
+app.use(function (req, res, next) {
+  next(createError(404));
 });
 
 const port = process.env.PORT || 3000;
