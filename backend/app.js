@@ -22,7 +22,7 @@ app.use('/auth', authRouter);
 // Multer configuration for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/Images');
+    cb(null, './public/images');
   },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
