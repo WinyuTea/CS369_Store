@@ -13,7 +13,7 @@ app.use(cors());
 app.use(bodyParser.json());
 
 // Serve static images from the public/Images directory
-app.use('/images', express.static(path.join(__dirname, 'public', 'Images')));
+app.use('/images', express.static(path.join(__dirname, 'public', 'images')));
 
 // Define routes
 app.use('/product', productRouter);
@@ -22,7 +22,7 @@ app.use('/auth', authRouter);
 // Multer configuration for file upload
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, './public/Images');
+    cb(null, './public/images');
   },
   filename: (req, file, cb) => {
     const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
